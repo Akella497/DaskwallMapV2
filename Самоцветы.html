@@ -587,6 +587,18 @@ resetBtn.addEventListener("click", () => {
   updateTransform();
 });
 
+// Кнопка обновления карты
+refreshBtn.addEventListener("click", () => {
+  // Добавляем визуальную обратную связь
+  refreshBtn.style.opacity = '0.5';
+  refreshBtn.textContent = 'Обновление...';
+  
+  // Перезагружаем страницу
+  setTimeout(() => {
+    location.reload();
+  }, 300);
+});
+
 // Адаптация при изменении размера окна
 window.addEventListener('resize', () => {
   constrainPosition();
