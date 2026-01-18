@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Интерактивная карта — Клинки во Тьме</title>
+<link rel="icon" type="image/png" href="https://i.postimg.cc/XJSk855s/123.png">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+/* ===================== ОСНОВА ===================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html, body {
+  height: 100%;
+}
+body {
+  font-family: 'Cinzel', serif;
+  background:
+    radial-gradient(ellipse at top, #1a2228 0%, #0b0f13 60%, #050608 100%);
+  color: #d4d6d8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ===================== АНИМИРОВАННЫЙ ФОН ===================== */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      120deg,
+      rgba(255,255,255,0.02) 0,
+      rgba(255,255,255,0.02) 1px,
+      transparent 2px,
+      transparent 6px
+    );
+  opacity: 0.25;
+  pointer-events: none;
+  animation: fog 30s linear infinite;
+}
+
+@keyframes fog {
+  0% { transform: translateX(0) translateY(0); }
+  100% { transform: translateX(50px) translateY(50px); }
+}
+
+/* Плавающие частицы */
+.particle {
+  position: fixed;
+  width: 2px;
+  height: 2px;
+  background: rgba(180,150,90,0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: float 20s infinite ease-in-out;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+}
+
+/* ===================== ЗАГОЛОВОК ===================== */
+.title {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  color: #e8e4d8;
+  text-shadow: 
+    0 0 20px rgba(180,150,90,0.6),
+    0 0 40px rgba(180,150,90,0.3),
+    2px 2px 4px rgba(0,0,0,0.8);
+  animation: titleGlow 3s ease-in-out infinite;
+  z-index: 10;
+}
+
+@keyframes titleGlow {
+  0%, 100% { text-shadow: 
+    0 0 20px rgba(180,150,90,0.6),
+    0 0 40px rgba(180,150,90,0.3),
+    2px 2px 4px rgba(0,0,0,0.8); }
+  50% { text-shadow: 
+    0 0 30px rgba(180,150,90,0.8),
+    0 0 60px rgba(180,150,90,0.5),
+    2px 2px 4px rgba(0,0,0,0.8); }
+}
+
+/* ===================== КОНТЕЙНЕР ===================== */
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 60px 70px;
+  background:
+    linear-gradient(180deg, rgba(30,38,45,0.92), rgba(12,16,20,0.95));
+  border: 2px solid rgba(180,150,90,0.35);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.8),
+    0 40px 100px rgba(0,0,0,0.9),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  position: relative;
+  animation: containerAppear 0.8s ease-out;
+}
+
+@keyframes containerAppear {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Латунная кромка */
+.button-container::before {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 2px dashed rgba(180,150,90,0.3);
+  pointer-events: none;
+  animation: borderPulse 4s ease-in-out infinite;
+}
+
+@keyframes borderPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+/* Угловые акценты */
+.button-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, rgba(180,150,90,0.2) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(180,150,90,0.2) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+/* ===================== КНОПКИ ===================== */
+.catalog-button {
+  position: relative;
+  text-align: center;
+  padding: 24px 56px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #e8e4d8;
+  background:
+    linear-gradient(145deg, #2b343c, #141a1f);
+  border: 2px solid rgba(180,150,90,0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.1),
+    inset 0 0 0 1px rgba(0,0,0,0.7),
+    0 14px 35px rgba(0,0,0,0.8);
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+/* Подсветка */
+.catalog-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    rgba(180,150,90,0.1) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+/* Призрачная линия */
+.catalog-button::after {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 8px;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(160,220,255,0.8),
+    transparent
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* ===================== HOVER ===================== */
+.catalog-button:hover {
+  transform: translateY(-4px) scale(1.02);
+  color: #ffffff;
+  border-color: rgba(180,150,90,0.8);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.2),
+    inset 0 0 0 1px rgba(0,0,0,0.8),
+    0 20px 50px rgba(0,0,0,0.95),
+    0 0 30px rgba(120,180,220,0.3);
+}
+
+.catalog-button:hover::before {
+  transform: translateX(100%);
+}
+
+.catalog-button:hover::after {
+  opacity: 1;
+}
+
+.catalog-button:active {
+  transform: translateY(-2px) scale(1);
+}
+
+/* ===================== АКЦЕНТЫ ПО ЛОКАЦИЯМ ===================== */
+.catalog-button:nth-child(1) {
+  animation: buttonAppear 0.6s ease-out 0.2s both;
+}
+.catalog-button:nth-child(2) {
+  animation: buttonAppear 0.6s ease-out 0.4s both;
+}
+.catalog-button:nth-child(3) {
+  animation: buttonAppear 0.6s ease-out 0.6s both;
+}
+
+@keyframes buttonAppear {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.catalog-button:nth-child(1):hover {
+  box-shadow:
+    0 0 35px rgba(80,200,140,0.4),
+    0 20px 50px rgba(0,0,0,0.95);
+}
+.catalog-button:nth-child(2):hover {
+  box-shadow:
+    0 0 35px rgba(160,160,160,0.4),
+    0 20px 50px rgba(0,0,0,0.95);
+}
+.catalog-button:nth-child(3):hover {
+  box-shadow:
+    0 0 40px rgba(220,180,90,0.5),
+    0 20px 50px rgba(0,0,0,0.95);
+}
+
+/* ===================== АДАПТИВНОСТЬ ===================== */
+@media (max-width: 768px) {
+  .title {
+    font-size: 28px;
+    letter-spacing: 4px;
+    top: 5%;
+  }
+  
+  .button-container {
+    padding: 40px 30px;
+    gap: 20px;
+  }
+  
+  .catalog-button {
+    padding: 18px 36px;
+    font-size: 16px;
+    letter-spacing: 2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 20px;
+    letter-spacing: 2px;
+  }
+  
+  .button-container {
+    padding: 30px 20px;
+    gap: 16px;
+  }
+  
+  .catalog-button {
+    padding: 14px 28px;
+    font-size: 14px;
+  }
+}
+</style>
+</head>
+<body>
+<h1 class="title">Дасквол</h1>
+
+<div class="button-container">
+  <a href="Brighstone.html" class="catalog-button" target="_blank">Самоцветы</a>
+  <a href="SG.html" class="catalog-button" target="_blank">Старый город</a>
+  <a href="WK.html" class="catalog-button" target="_blank">Белая корона</a>
+</div>
+
+<script>
+// Создаем плавающие частицы
+for(let i = 0; i < 30; i++) {
+  const particle = document.createElement('div');
+  particle.className = 'particle';
+  particle.style.left = Math.random() * 100 + '%';
+  particle.style.animationDelay = Math.random() * 20 + 's';
+  particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+  document.body.appendChild(particle);
+}
+
+// Звуковой эффект при наведении (опционально)
+const buttons = document.querySelectorAll('.catalog-button');
+buttons.forEach(btn => {
+  btn.addEventListener('mouseenter', () => {
+    btn.style.fontWeight = '900';
+  });
+  btn.addEventListener('mouseleave', () => {
+    btn.style.fontWeight = '700';
+  });
+});
+</script>
+</body>
+</html>
