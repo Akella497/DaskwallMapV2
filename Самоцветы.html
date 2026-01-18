@@ -588,7 +588,13 @@ html, body {
 const modal = document.getElementById('welcomeModal');
 const closeModalBtn = document.getElementById('closeModal');
 
+// Проверяем, был ли дисклеймер уже показан в этой сессии
+if (sessionStorage.getItem('disclaimerShown') === 'true') {
+  modal.style.display = 'none';
+}
+
 closeModalBtn.addEventListener('click', () => {
+  sessionStorage.setItem('disclaimerShown', 'true');
   modal.style.animation = 'fadeOut 0.3s ease';
   setTimeout(() => {
     modal.style.display = 'none';
@@ -598,6 +604,7 @@ closeModalBtn.addEventListener('click', () => {
 // Закрытие по клику вне окна
 modal.addEventListener('click', (e) => {
   if (e.target === modal) {
+    sessionStorage.setItem('disclaimerShown', 'true');
     modal.style.animation = 'fadeOut 0.3s ease';
     setTimeout(() => {
       modal.style.display = 'none';
