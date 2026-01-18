@@ -71,6 +71,30 @@ html, body {
     inset 0 0 20px rgba(255,255,255,0.3);
 }
 
+.marker-small {
+ position: absolute;
+ width: 20px;
+ height: 20px;
+ background: radial-gradient(circle, rgba(0,78,255,0.6), rgba(0,78,255,0.3));
+ border-radius: 50%;
+ border: 2px solid rgba(120,180,255,0.8);
+ box-shadow: 
+   0 0 20px rgba(120,180,255,0.6),
+   0 0 40px rgba(120,180,255,0.3),
+   inset 0 0 15px rgba(255,255,255,0.2);
+ cursor: help;
+ transition: all 0.3s ease;
+ animation: pulse 2s ease-in-out infinite;
+}
+
+.marker-small:hover {
+ transform: scale(1.2);
+ box-shadow: 
+   0 0 30px rgba(120,180,255,0.9),
+   0 0 60px rgba(120,180,255,0.5),
+   inset 0 0 20px rgba(255,255,255,0.3);
+}
+
 @keyframes pulse {
   0%, 100% { 
     box-shadow: 
@@ -122,7 +146,7 @@ html, body {
 }
 
 /* ===================== TOOLTIP ===================== */
-.marker .tooltip,
+.marker .tooltip, .marker-small .tooltip,
 .bee .tooltip {
   position: absolute;
   left: calc(100% + 30px);
@@ -156,7 +180,7 @@ html, body {
 }
 
 /* Латунная внутренняя кромка */
-.marker .tooltip::before,
+.marker .tooltip::before, .marker-small .tooltip::before,
 .bee .tooltip::before {
   content: "";
   position: absolute;
@@ -172,7 +196,7 @@ html, body {
 }
 
 /* Угловые украшения */
-.marker .tooltip::after,
+.marker .tooltip::after, .marker-small .tooltip::after,
 .bee .tooltip::after {
   content: "";
   position: absolute;
@@ -197,7 +221,7 @@ html, body {
 }
 
 /* Появление tooltip */
-.marker:hover .tooltip,
+.marker:hover .tooltip, .marker-small:hover .tooltip,
 .bee:hover .tooltip {
   opacity: 1;
   transform: translateY(-50%) translateX(10px);
@@ -364,6 +388,16 @@ html, body {
         <p><strong>Церковь Экстаза</strong></p>
         <p>Место базирования имперской организации святослужителей.</p>
         <p>По словам обывателей Дасквола здесь находятся верующие в Его Величество, Бессмертного Императора. Они несут волю Его во все уголки Империи и несут существенную угрозу для тех, кто как-либо связан с дьяволщиной.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+      <div class="marker-small" style="left:29.12%; top:40.4%;">
+      <div class="tooltip">
+        <p><strong>Общественная клинка «Марии Благосклонной»</strong></p>
+        <p>Лечебница, доступная представителям среднего сословия.</p>
+        <p>. . .</p>
       </div>
     </div>
   </div>
