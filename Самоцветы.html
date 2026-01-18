@@ -90,28 +90,36 @@ html, body {
 /* ===================== МАРКЕР УЛЬЯ ===================== */
 .bee {
   position: absolute;
-  width: 90px;
-  height: 90px;
-  background: url(https://cdn.imgpile.com/f/abt8wWX_xl.png) no-repeat center center;
-  background-size: cover;
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle, rgba(0,78,255,0.6), rgba(0,78,255,0.3));
+  border-radius: 50%;
+  border: 2px solid rgba(120,180,255,0.8);
+  box-shadow: 
+    0 0 20px rgba(120,180,255,0.6),
+    0 0 40px rgba(120,180,255,0.3),
+    inset 0 0 15px rgba(255,255,255,0.2);
   cursor: help;
   transition: all 0.3s ease;
-  filter: drop-shadow(0 0 15px rgba(255,200,100,0.5));
-  animation: beePulse 3s ease-in-out infinite;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.bee::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: url(https://cdn.imgpile.com/f/abt8wWX_xl.png) no-repeat center center;
+  background-size: 70%;
+  opacity: 0.9;
 }
 
 .bee:hover {
-  transform: scale(1.15) rotate(5deg);
-  filter: drop-shadow(0 0 25px rgba(255,200,100,0.8));
-}
-
-@keyframes beePulse {
-  0%, 100% { 
-    filter: drop-shadow(0 0 15px rgba(255,200,100,0.5));
-  }
-  50% { 
-    filter: drop-shadow(0 0 25px rgba(255,200,100,0.7));
-  }
+  transform: scale(1.2);
+  box-shadow: 
+    0 0 30px rgba(120,180,255,0.9),
+    0 0 60px rgba(120,180,255,0.5),
+    inset 0 0 20px rgba(255,255,255,0.3);
 }
 
 /* ===================== TOOLTIP ===================== */
@@ -257,11 +265,6 @@ html, body {
     height: 60px;
   }
   
-  .bee {
-    width: 80px;
-    height: 80px;
-  }
-  
   .marker .tooltip, 
   .bee .tooltip {
     left: calc(100% + 15px);
@@ -299,7 +302,7 @@ html, body {
   <div id="map-wrapper">
     <img
       id="map"
-      src="https://i.imgur.com/zFQMePG.jpeg"
+      src="https://raw.githubusercontent.com/Akella497/Daskwall-Map/refs/heads/main/Brighstone.jpg"
       draggable="false"
       alt="Карта Самоцветов"
     >
