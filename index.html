@@ -84,7 +84,7 @@ body::before {
     2px 2px 4px rgba(0,0,0,0.8);
   animation: titleGlow 3s ease-in-out infinite;
   z-index: 10;
-  margin-bottom: 50px;
+  margin-bottom: 30px;
   text-align: center;
 }
 
@@ -97,6 +97,99 @@ body::before {
     0 0 30px rgba(180,150,90,0.8),
     0 0 60px rgba(180,150,90,0.5),
     2px 2px 4px rgba(0,0,0,0.8); }
+}
+
+/* ===================== КНОПКА ОБЩЕЙ КАРТЫ ===================== */
+.general-map-button {
+  position: relative;
+  text-align: center;
+  padding: 28px 60px;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #e8e4d8;
+  background:
+    linear-gradient(145deg, #3b444c, #1a2228);
+  border: 3px solid rgba(180,150,90,0.7);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,0.15),
+    inset 0 0 0 1px rgba(0,0,0,0.7),
+    0 20px 50px rgba(0,0,0,0.9),
+    0 0 40px rgba(180,150,90,0.3);
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+  overflow: hidden;
+  cursor: pointer;
+  display: inline-block;
+  margin-bottom: 40px;
+  animation: generalMapAppear 0.8s ease-out;
+}
+
+@keyframes generalMapAppear {
+  from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Сияние */
+.general-map-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    rgba(180,150,90,0.2) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+/* Нижняя линия */
+.general-map-button::after {
+  content: "";
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  bottom: 10px;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(180,150,90,0.9),
+    transparent
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  box-shadow: 0 0 10px rgba(180,150,90,0.5);
+}
+
+.general-map-button:hover {
+  transform: translateY(-6px) scale(1.05);
+  color: #ffffff;
+  border-color: rgba(180,150,90,1);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,0.25),
+    inset 0 0 0 1px rgba(0,0,0,0.8),
+    0 25px 60px rgba(0,0,0,0.95),
+    0 0 60px rgba(180,150,90,0.6);
+}
+
+.general-map-button:hover::before {
+  transform: translateX(100%);
+}
+
+.general-map-button:hover::after {
+  opacity: 1;
+}
+
+.general-map-button:active {
+  transform: translateY(-3px) scale(1.02);
 }
 
 /* ===================== КОНТЕЙНЕР ===================== */
@@ -339,6 +432,13 @@ body::before {
   .title {
     font-size: 32px;
     letter-spacing: 4px;
+    margin-bottom: 20px;
+  }
+  
+  .general-map-button {
+    padding: 20px 40px;
+    font-size: 18px;
+    letter-spacing: 3px;
     margin-bottom: 30px;
   }
   
@@ -362,6 +462,13 @@ body::before {
     letter-spacing: 2px;
   }
   
+  .general-map-button {
+    padding: 16px 30px;
+    font-size: 16px;
+    letter-spacing: 2px;
+    margin-bottom: 25px;
+  }
+  
   .districts-container {
     grid-template-columns: 1fr;
     padding: 20px 15px;
@@ -382,6 +489,8 @@ body::before {
 </head>
 <body>
 <h1 class="title">Дасквол</h1>
+
+<a href="ОбщаяКарта.html" class="general-map-button">📍 Общая карта</a>
 
 <div class="districts-container">
   <a href="Самоцветы.html" class="district-card">Самоцветы</a>
