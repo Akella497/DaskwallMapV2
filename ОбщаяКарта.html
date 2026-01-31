@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Общая карта</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/RKq3TUU.jpeg">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+  
+<style>
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Merriweather', serif;
+}
+
+/* ===================== VIEWPORT ===================== */
+#viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+  cursor: grab;
+}
+
+#viewport.grabbing {
+  cursor: grabbing;
+}
+
+/* ===================== КОНТЕЙНЕР КАРТЫ ===================== */
+#map-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+}
+
+/* ===================== КАРТА ===================== */
+#map {
+  display: block;
+  user-select: none;
+  pointer-events: none;
+  filter: brightness(0.85) contrast(1.1);
+}
+
+/* ===================== МАРКЕРЫ ===================== */
+.marker {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle, rgba(0,78,255,0.6), rgba(0,78,255,0.3));
+  border-radius: 50%;
+  border: 2px solid rgba(120,180,255,0.8);
+  box-shadow: 
+    0 0 20px rgba(120,180,255,0.6),
+    0 0 40px rgba(120,180,255,0.3),
+    inset 0 0 15px rgba(255,255,255,0.2);
+  cursor: help;
+  transition: all 0.3s ease;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.marker:hover {
+  transform: scale(1.2);
+  box-shadow: 
+    0 0 30px rgba(120,180,255,0.9),
+    0 0 60px rgba(120,180,255,0.5),
+    inset 0 0 20px rgba(255,255,255,0.3);
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    box-shadow: 
+      0 0 20px rgba(120,180,255,0.6),
+      0 0 40px rgba(120,180,255,0.3),
+      inset 0 0 15px rgba(255,255,255,0.2);
+  }
+  50% { 
+    box-shadow: 
+      0 0 30px rgba(120,180,255,0.8),
+      0 0 60px rgba(120,180,255,0.5),
+      inset 0 0 20px rgba(255,255,255,0.3);
+  }
+}
+
+/* ===================== МАЛЕНЬКИЕ МАРКЕРЫ ===================== */
+.marker-small {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: radial-gradient(circle, rgba(0,78,255,0.6), rgba(0,78,255,0.3));
+  border-radius: 50%;
+  border: 2px solid rgba(120,180,255,0.8);
+  box-shadow: 
+    0 0 15px rgba(120,180,255,0.6),
+    0 0 30px rgba(120,180,255,0.3),
+    inset 0 0 10px rgba(255,255,255,0.2);
+  cursor: help;
+  transition: all 0.3s ease;
+  animation: pulseSmall 2s ease-in-out infinite;
+}
+
+.marker-small:hover {
+  transform: scale(1.3);
+  box-shadow: 
+    0 0 25px rgba(120,180,255,0.9),
+    0 0 50px rgba(120,180,255,0.5),
+    inset 0 0 15px rgba(255,255,255,0.3);
+}
+
+@keyframes pulseSmall {
+  0%, 100% { 
+    box-shadow: 
+      0 0 15px rgba(120,180,255,0.6),
+      0 0 30px rgba(120,180,255,0.3),
+      inset 0 0 10px rgba(255,255,255,0.2);
+  }
+  50% { 
+    box-shadow: 
+      0 0 25px rgba(120,180,255,0.8),
+      0 0 50px rgba(120,180,255,0.5),
+      inset 0 0 15px rgba(255,255,255,0.3);
+  }
+}
+
+/* ===================== МАРКЕР УЛЬЯ ===================== */
+.bee {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle, rgba(0,78,255,0.6), rgba(0,78,255,0.3));
+  border-radius: 50%;
+  border: 2px solid rgba(120,180,255,0.8);
+  box-shadow: 
+    0 0 20px rgba(120,180,255,0.6),
+    0 0 40px rgba(120,180,255,0.3),
+    inset 0 0 15px rgba(255,255,255,0.2);
+  cursor: help;
+  transition: all 0.3s ease;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.bee::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: url(https://cdn.imgpile.com/f/abt8wWX_xl.png) no-repeat center center;
+  background-size: 200%;
+  opacity: 0.9;
+}
+
+.bee:hover {
+  transform: scale(1.2);
+  box-shadow: 
+    0 0 30px rgba(120,180,255,0.9),
+    0 0 60px rgba(120,180,255,0.5),
+    inset 0 0 20px rgba(255,255,255,0.3);
+}
+
+/* ===================== TOOLTIP ===================== */
+.marker .tooltip,
+.marker-small .tooltip,
+.bee .tooltip {
+  position: absolute;
+  left: calc(100% + 30px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40rem;
+  max-width: 90vw;
+  padding: 28px 34px;
+  
+  background:
+    linear-gradient(180deg, rgba(30,38,45,0.95), rgba(12,16,20,0.97));
+  
+  border: 2px solid rgba(180,150,90,0.4);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.8),
+    0 30px 80px rgba(0,0,0,0.9),
+    0 0 40px rgba(180,150,90,0.2);
+  
+  color: #e8e4d8;
+  font-family: 'Merriweather', serif;
+  font-size: 22pt;
+  line-height: 1.6;
+  text-align: center;
+  
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 1000;
+  
+  backdrop-filter: blur(10px);
+}
+
+/* Латунная внутренняя кромка */
+.marker .tooltip::before,
+.marker-small .tooltip::before,
+.bee .tooltip::before {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 2px dashed rgba(180,150,90,0.5);
+  pointer-events: none;
+  animation: borderShimmer 3s ease-in-out infinite;
+}
+
+@keyframes borderShimmer {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+/* Угловые украшения */
+.marker .tooltip::after,
+.marker-small .tooltip::after,
+.bee .tooltip::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, rgba(180,150,90,0.3) 2px, transparent 2px) 0 0,
+    linear-gradient(to right, rgba(180,150,90,0.3) 2px, transparent 2px) 0 100%,
+    linear-gradient(to bottom, rgba(180,150,90,0.3) 2px, transparent 2px) 0 0,
+    linear-gradient(to bottom, rgba(180,150,90,0.3) 2px, transparent 2px) 100% 0;
+  background-repeat: no-repeat;
+  background-size: 30px 30px;
+  pointer-events: none;
+}
+
+/* Параграфы */
+.tooltip p {
+  margin: 0 0 12px 0;
+}
+
+.tooltip p:last-child {
+  margin-bottom: 0;
+}
+
+/* Появление tooltip */
+.marker:hover .tooltip,
+.marker-small:hover .tooltip,
+.bee:hover .tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(10px);
+}
+
+/* ===================== ЭЛЕМЕНТЫ УПРАВЛЕНИЯ ===================== */
+.controls {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  display: flex;
+  gap: 12px;
+  z-index: 100;
+}
+
+.control-btn {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(145deg, rgba(30,38,45,0.95), rgba(12,16,20,0.97));
+  border: 2px solid rgba(180,150,90,0.4);
+  border-radius: 8px;
+  color: #e8e4d8;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.control-btn:hover {
+  background: linear-gradient(145deg, rgba(40,48,55,0.95), rgba(22,26,30,0.97));
+  border-color: rgba(180,150,90,0.7);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.7);
+}
+
+.control-btn:active {
+  transform: translateY(0);
+}
+
+/* ===================== ИНДИКАТОР ЗУМА ===================== */
+.zoom-indicator {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  padding: 12px 20px;
+  background: linear-gradient(145deg, rgba(30,38,45,0.95), rgba(12,16,20,0.97));
+  border: 2px solid rgba(180,150,90,0.4);
+  border-radius: 8px;
+  color: #e8e4d8;
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  z-index: 100;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+/* ===================== КНОПКА ОБНОВЛЕНИЯ ===================== */
+.refresh-btn {
+  position: fixed;
+  top: 30px;
+  left: 30px;
+  padding: 12px 24px;
+  background: linear-gradient(145deg, rgba(30,38,45,0.95), rgba(12,16,20,0.97));
+  border: 2px solid rgba(180,150,90,0.4);
+  border-radius: 8px;
+  color: #e8e4d8;
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 100;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  user-select: none;
+}
+
+.refresh-btn:hover {
+  background: linear-gradient(145deg, rgba(40,48,55,0.95), rgba(22,26,30,0.97));
+  border-color: rgba(180,150,90,0.7);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.7);
+}
+
+.refresh-btn:active {
+  transform: translateY(0);
+}
+
+/* ===================== АДАПТИВНОСТЬ ===================== */
+@media (max-width: 768px) {
+  .marker { 
+    width: 60px;
+    height: 60px;
+  }
+  
+  .marker-small {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .bee {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .marker .tooltip,
+  .marker-small .tooltip,
+  .bee .tooltip {
+    left: calc(100% + 15px);
+    font-size: 14px;
+    max-width: 85vw;
+    padding: 16px 20px;
+    width: auto;
+  }
+  
+  .controls {
+    bottom: 15px;
+    right: 15px;
+    gap: 8px;
+  }
+  
+  .control-btn {
+    width: 45px;
+    height: 45px;
+    font-size: 20px;
+  }
+  
+  .zoom-indicator {
+    top: 15px;
+    right: 15px;
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+  
+  .refresh-btn {
+    top: 15px;
+    left: 15px;
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+}
+
+/* ===================== МОДАЛЬНОЕ ОКНО ===================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: linear-gradient(180deg, rgba(30,38,45,0.98), rgba(12,16,20,0.98));
+  border: 3px solid rgba(180,150,90,0.6);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.9),
+    0 50px 100px rgba(0,0,0,0.95),
+    0 0 60px rgba(180,150,90,0.3);
+  padding: 40px 50px;
+  max-width: 600px;
+  width: 90%;
+  position: relative;
+  animation: modalAppear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalAppear {
+  from { 
+    opacity: 0; 
+    transform: translateY(-50px) scale(0.9);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-content::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 2px dashed rgba(180,150,90,0.4);
+  pointer-events: none;
+}
+
+.modal-title {
+  font-family: 'Cinzel', serif;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #e8e4d8;
+  text-align: center;
+  margin: 0 0 25px 0;
+  text-shadow: 0 0 20px rgba(180,150,90,0.5);
+}
+
+.modal-text {
+  font-family: 'Merriweather', serif;
+  font-size: 18px;
+  line-height: 1.7;
+  color: #d4d6d8;
+  text-align: center;
+  margin: 0 0 30px 0;
+}
+
+.modal-button {
+  display: block;
+  width: 100%;
+  padding: 16px 32px;
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #e8e4d8;
+  background: linear-gradient(145deg, #2b343c, #141a1f);
+  border: 2px solid rgba(180,150,90,0.5);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.1),
+    0 8px 20px rgba(0,0,0,0.6);
+}
+
+.modal-button:hover {
+  background: linear-gradient(145deg, #3b444c, #242a2f);
+  border-color: rgba(180,150,90,0.8);
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.2),
+    0 12px 30px rgba(0,0,0,0.8),
+    0 0 25px rgba(180,150,90,0.3);
+  color: #ffffff;
+}
+
+.modal-button:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    padding: 30px 25px;
+  }
+  
+  .modal-title {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .modal-text {
+    font-size: 16px;
+    margin-bottom: 25px;
+  }
+  
+  .modal-button {
+    padding: 14px 24px;
+    font-size: 14px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- МОДАЛЬНОЕ ОКНО -->
+<div class="modal-overlay" id="welcomeModal">
+  <div class="modal-content">
+    <h2 class="modal-title">Добро пожаловать!</h2>
+    <p class="modal-text">
+      Пожалуйста, перед изучением карты нажмите кнопку «Обновить информацию карты» в левом верхнем углу для актуализации имеющейся информации.
+    </p>
+    <button class="modal-button" id="closeModal">Понятно</button>
+  </div>
+</div>
+
+<div id="viewport">
+  <div id="map-wrapper">
+    <img
+      id="map"
+      src="https://raw.githubusercontent.com/Akella497/Daskwall-Map/refs/heads/main/Brighstone.jpg"
+      draggable="false"
+      alt="Карта Самоцветов"
+    >
+
+    <!-- МАРКЕРЫ -->
+    
+
+<!-- ЭЛЕМЕНТЫ УПРАВЛЕНИЯ -->
+<button class="refresh-btn" id="refreshMap">Обновить информацию карты</button>
+
+<div class="controls">
+  <button class="control-btn" id="zoomIn" title="Приблизить">+</button>
+  <button class="control-btn" id="zoomOut" title="Отдалить">−</button>
+  <button class="control-btn" id="reset" title="Сбросить">⟲</button>
+</div>
+
+<div class="zoom-indicator">
+  Масштаб: <span id="zoomLevel">100</span>%
+</div>
+
+<script>
+// Модальное окно
+const modal = document.getElementById('welcomeModal');
+const closeModalBtn = document.getElementById('closeModal');
+
+// Проверяем, был ли дисклеймер уже показан в этой сессии
+if (sessionStorage.getItem('disclaimerShown') === 'true') {
+  modal.style.display = 'none';
+}
+
+closeModalBtn.addEventListener('click', () => {
+  sessionStorage.setItem('disclaimerShown', 'true');
+  modal.style.animation = 'fadeOut 0.3s ease';
+  setTimeout(() => {
+    modal.style.display = 'none';
+  }, 300);
+});
+
+// Закрытие по клику вне окна
+modal.addEventListener('click', (e) => {
+  if (e.target === modal) {
+    sessionStorage.setItem('disclaimerShown', 'true');
+    modal.style.animation = 'fadeOut 0.3s ease';
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 300);
+  }
+});
+
+// Добавляем анимацию исчезновения
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+`;
+document.head.appendChild(style);
+
+const viewport = document.getElementById("viewport");
+const wrapper = document.getElementById("map-wrapper");
+const map = document.getElementById("map");
+const zoomInBtn = document.getElementById("zoomIn");
+const zoomOutBtn = document.getElementById("zoomOut");
+const resetBtn = document.getElementById("reset");
+const refreshBtn = document.getElementById("refreshMap");
+const zoomLevelDisplay = document.getElementById("zoomLevel");
+
+let isDragging = false, startX = 0, startY = 0;
+let translateX = 0, translateY = 0;
+let scale = 1;
+let initialScale = 1;
+
+const MIN_SCALE = 0.5;
+const MAX_SCALE = 3;
+
+function clamp(v, min, max) { 
+  return Math.min(Math.max(v, min), max); 
+}
+
+function updateTransform() { 
+  wrapper.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+  zoomLevelDisplay.textContent = Math.round(scale * 100);
+}
+
+function constrainPosition() {
+  const vw = viewport.clientWidth;
+  const vh = viewport.clientHeight;
+  const mw = map.naturalWidth * scale;
+  const mh = map.naturalHeight * scale;
+  
+  translateX = clamp(translateX, vw - mw, 0);
+  translateY = clamp(translateY, vh - mh, 0);
+}
+
+// Инициализация при загрузке
+map.onload = () => {
+  const vw = viewport.clientWidth;
+  const vh = viewport.clientHeight;
+  const iw = map.naturalWidth;
+  const ih = map.naturalHeight;
+
+  scale = Math.max(vw / iw, vh / ih);
+  initialScale = scale;
+  
+  const w = iw * scale;
+  const h = ih * scale;
+
+  translateX = (vw - w) / 2;
+  translateY = (vh - h) / 2;
+  updateTransform();
+};
+
+// Управление мышью
+viewport.addEventListener("mousedown", e => {
+  if (e.target.closest('.marker, .marker-small, .bee, .control-btn')) return;
+  isDragging = true;
+  startX = e.clientX;
+  startY = e.clientY;
+  viewport.classList.add('grabbing');
+});
+
+window.addEventListener("mouseup", () => {
+  isDragging = false;
+  viewport.classList.remove('grabbing');
+});
+
+window.addEventListener("mousemove", e => {
+  if (!isDragging) return;
+  const dx = e.clientX - startX;
+  const dy = e.clientY - startY;
+  startX = e.clientX;
+  startY = e.clientY;
+  
+  translateX += dx;
+  translateY += dy;
+  constrainPosition();
+  updateTransform();
+});
+
+// Управление касаниями
+let lastTouchDistance = 0;
+
+viewport.addEventListener("touchstart", e => {
+  if (e.touches.length === 1) {
+    isDragging = true;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  } else if (e.touches.length === 2) {
+    isDragging = false;
+    lastTouchDistance = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+  }
+});
+
+viewport.addEventListener("touchmove", e => {
+  if (e.touches.length === 1 && isDragging) {
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    
+    translateX += dx;
+    translateY += dy;
+    constrainPosition();
+    updateTransform();
+  } else if (e.touches.length === 2) {
+    const touchDistance = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    
+    const delta = touchDistance - lastTouchDistance;
+    const oldScale = scale;
+    scale = clamp(scale + delta * 0.01, MIN_SCALE, MAX_SCALE);
+    
+    const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    
+    const scaleRatio = scale / oldScale;
+    translateX = centerX - (centerX - translateX) * scaleRatio;
+    translateY = centerY - (centerY - translateY) * scaleRatio;
+    
+    constrainPosition();
+    updateTransform();
+    
+    lastTouchDistance = touchDistance;
+  }
+});
+
+viewport.addEventListener("touchend", () => {
+  isDragging = false;
+});
+
+// Зум колесом мыши
+viewport.addEventListener("wheel", e => {
+  e.preventDefault();
+  
+  const oldScale = scale;
+  const delta = e.deltaY > 0 ? -0.1 : 0.1;
+  scale = clamp(scale + delta, MIN_SCALE, MAX_SCALE);
+  
+  const rect = viewport.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  
+  const scaleRatio = scale / oldScale;
+  translateX = mouseX - (mouseX - translateX) * scaleRatio;
+  translateY = mouseY - (mouseY - translateY) * scaleRatio;
+  
+  constrainPosition();
+  updateTransform();
+}, { passive: false });
+
+// Кнопки управления
+zoomInBtn.addEventListener("click", () => {
+  const oldScale = scale;
+  scale = clamp(scale + 0.2, MIN_SCALE, MAX_SCALE);
+  
+  const centerX = viewport.clientWidth / 2;
+  const centerY = viewport.clientHeight / 2;
+  
+  const scaleRatio = scale / oldScale;
+  translateX = centerX - (centerX - translateX) * scaleRatio;
+  translateY = centerY - (centerY - translateY) * scaleRatio;
+  
+  constrainPosition();
+  updateTransform();
+});
+
+zoomOutBtn.addEventListener("click", () => {
+  const oldScale = scale;
+  scale = clamp(scale - 0.2, MIN_SCALE, MAX_SCALE);
+  
+  const centerX = viewport.clientWidth / 2;
+  const centerY = viewport.clientHeight / 2;
+  
+  const scaleRatio = scale / oldScale;
+  translateX = centerX - (centerX - translateX) * scaleRatio;
+  translateY = centerY - (centerY - translateY) * scaleRatio;
+  
+  constrainPosition();
+  updateTransform();
+});
+
+resetBtn.addEventListener("click", () => {
+  const vw = viewport.clientWidth;
+  const vh = viewport.clientHeight;
+  const iw = map.naturalWidth;
+  const ih = map.naturalHeight;
+
+  scale = Math.max(vw / iw, vh / ih);
+  const w = iw * scale;
+  const h = ih * scale;
+
+  translateX = (vw - w) / 2;
+  translateY = (vh - h) / 2;
+  updateTransform();
+});
+
+// Кнопка обновления карты
+refreshBtn.addEventListener("click", () => {
+  // Добавляем визуальную обратную связь
+  refreshBtn.style.opacity = '0.5';
+  refreshBtn.textContent = 'Обновление...';
+  
+  // Перезагружаем страницу
+  setTimeout(() => {
+    location.reload();
+  }, 300);
+});
+
+// Адаптация при изменении размера окна
+window.addEventListener('resize', () => {
+  constrainPosition();
+  updateTransform();
+});
+</script>
+
+</body>
+</html>
